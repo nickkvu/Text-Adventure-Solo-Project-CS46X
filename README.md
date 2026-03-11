@@ -1,12 +1,10 @@
 # Text Adventure - Capstone Solo Project
 **A Brawl Stars Inspired Game**
 
----
 
 ## Overview 
 A text-based adventure game that takes inspiration from my favorite game Brawl Stars. The player navigates a grid-based arena, picks up weapons, and defeats enemy bots to clear the room.
 
----
 
 ## How To Run
 **Requirements:** Python 3.7 or later. No external libraries required for now, as this is currently one Sprint into developemnt. 
@@ -15,7 +13,6 @@ A text-based adventure game that takes inspiration from my favorite game Brawl S
 python main.py
 ```
 
----
 
 ## How To Play
 
@@ -44,7 +41,7 @@ python main.py
 ### Game Objective
 Navigate the arean, pick up the weapon, and shoot all enemy bots to clear the room. Note: Series of rooms will be present in future Sprints.
 
----
+
 
 ## Grid Symbols
 | Symbol | Meaning |
@@ -56,12 +53,12 @@ Navigate the arean, pick up the weapon, and shoot all enemy bots to clear the ro
 | `#` | Wall |
 | `.` | Floor |
 
----
+
 
 ## Game Data
 All game values are configured in `data.json` — including room layout, player HP, bot HP, weapon range, and damage. No code changes are needed to adjust game balance.
 
----
+
 
 ## Sprint 1 -- Completed Features
 - Grid-based area with custom layouts loaded from the JSON data file
