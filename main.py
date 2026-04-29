@@ -109,10 +109,12 @@ def run_game():
     title_screen()
 
     data = load_data()
+    DIRECTION_MAP = data["directions"]
+    current_room_index = 0
+    num_rooms = len(data["room"]["layouts"])
 
     # Build room — Room handles grid, bot spawns, item spawns
-    room = Room(data["room"], data["bot"], data["item"])
-    DIRECTION_MAP = data["directions"]
+    room = Room(data["room"], data["bot"], data["item"], current_room_index)
 
     # Spawn player at center, making sure it's a floor tile
     player_row = room.height // 2
@@ -154,8 +156,16 @@ def run_game():
                 display(room, player, status)
 
                 if room.is_cleared():
-                    display(room, player, "*** ROOM CLEARED! YOU WIN! ***")
-                    break 
+                    if current_room_index < num_rooms - 1:
+                        input("\n*** ROOM CLEARED! Press [ENTER] to advance... ***")
+                        current_room_index += 1
+                        room = Room(data["room"], data["bot"], data["item"], current_room_index)
+                        player.row = room.height // 2
+                        player.col = room.width  // 2
+                        display(room, player, f"Entering Room {current_room_index + 1}...")
+                    else:
+                        display(room, player, "*** ALL ROOMS CLEARED! YOU WIN! ***")
+                        break
         
         # --- Help HUD ---
         elif verb == 'help':

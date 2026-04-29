@@ -8,10 +8,10 @@ from item import Item
 
 
 class Room:
-    def __init__(self, room_data, bot_data, item_data):
+    def __init__(self, room_data, bot_data, item_data, layout_index=0):
         self.wall  = room_data["wall"]
         self.floor = room_data["floor"]
-        self.grid  = self._build_grid(room_data["layout"])
+        self.grid  = self._build_grid(room_data["layouts"][layout_index])
         self.height = len(self.grid)
         self.width  = len(self.grid[0])
 
