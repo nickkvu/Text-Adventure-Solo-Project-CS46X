@@ -103,12 +103,19 @@ def display_help():
     input("Press [ENTER] to return to game...")
 
 ######################################
-# Move All Living Bots Toward Player
+# Bot Turn: Each Bot Shoots OR Moves
 ######################################
-def move_bots(room, player):
+def bot_turn(room, player):
+    messages = []
     for bot in room.bots:
-        if bot.alive:
+        if not bot.alive:
+            continue
+        msg = bot.shoot(player, room)
+        if msg:
+            messages.append(msg)
+        else:
             bot.move(room, player)
+    return "\n".join(messages)
 
 ######################################
 # Run The Game
@@ -139,8 +146,11 @@ def run_game():
         if verb in ('w', 'a', 's', 'd') or (verb in ('move', 'go') and noun in DIRECTION_MAP):
             direction = DIRECTION_MAP.get(noun or verb)
             status = player.move(direction, room.grid)
-            move_bots(room, player)
-            display(room, player, status)
+            bot_msg = bot_turn(room, player)
+            display(room, player, "\n".join(filter(None, [status, bot_msg])))
+            if player.hp <= 0:
+                display(room, player, "*** YOU HAVE BEEN DEFEATED! GAME OVER! ***")
+                break
 
         # --- Pick Up Item ---
         elif verb == 'pickup':
@@ -151,9 +161,12 @@ def run_game():
                     player.weapon = item
                     picked = True
                     break
-            move_bots(room, player)
-            status = f"You picked up the {item.name}!" if picked else "There's nothing here to pick up."
-            display(room, player, status)
+            bot_msg = bot_turn(room, player)
+            pickup_msg = f"You picked up the {item.name}!" if picked else "There's nothing here to pick up."
+            display(room, player, "\n".join(filter(None, [pickup_msg, bot_msg])))
+            if player.hp <= 0:
+                display(room, player, "*** YOU HAVE BEEN DEFEATED! GAME OVER! ***")
+                break
 
         # --- Shooting ---
         elif verb == 'shoot':
@@ -176,8 +189,11 @@ def run_game():
                         display(room, player, "*** ALL ROOMS CLEARED! YOU WIN! ***")
                         break
                 else:
-                    move_bots(room, player)
-                    display(room, player, status)
+                    bot_msg = bot_turn(room, player)
+                    display(room, player, "\n".join(filter(None, [status, bot_msg])))
+                    if player.hp <= 0:
+                        display(room, player, "*** YOU HAVE BEEN DEFEATED! GAME OVER! ***")
+                        break
         
         # --- Help HUD ---
         elif verb == 'help':
