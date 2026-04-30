@@ -103,6 +103,14 @@ def display_help():
     input("Press [ENTER] to return to game...")
 
 ######################################
+# Move All Living Bots Toward Player
+######################################
+def move_bots(room, player):
+    for bot in room.bots:
+        if bot.alive:
+            bot.move(room, player)
+
+######################################
 # Run The Game
 ######################################
 def run_game():
@@ -131,6 +139,7 @@ def run_game():
         if verb in ('w', 'a', 's', 'd') or (verb in ('move', 'go') and noun in DIRECTION_MAP):
             direction = DIRECTION_MAP.get(noun or verb)
             status = player.move(direction, room.grid)
+            move_bots(room, player)
             display(room, player, status)
 
         # --- Pick Up Item ---
@@ -140,11 +149,11 @@ def run_game():
                 if not item.picked_up and item.row == player.row and item.col == player.col:
                     item.picked_up = True
                     player.weapon = item
-                    display(room, player, f"You picked up the {item.name}!")
                     picked = True
                     break
-            if not picked:
-                display(room, player, "There's nothing here to pick up.") 
+            move_bots(room, player)
+            status = f"You picked up the {item.name}!" if picked else "There's nothing here to pick up."
+            display(room, player, status)
 
         # --- Shooting ---
         elif verb == 'shoot':
@@ -153,9 +162,9 @@ def run_game():
             else:
                 direction = DIRECTION_MAP[noun]
                 status = player.shoot(direction, room)
-                display(room, player, status)
 
                 if room.is_cleared():
+                    display(room, player, status)
                     if current_room_index < num_rooms - 1:
                         input("\n*** ROOM CLEARED! Press [ENTER] to advance... ***")
                         current_room_index += 1
@@ -166,6 +175,9 @@ def run_game():
                     else:
                         display(room, player, "*** ALL ROOMS CLEARED! YOU WIN! ***")
                         break
+                else:
+                    move_bots(room, player)
+                    display(room, player, status)
         
         # --- Help HUD ---
         elif verb == 'help':
