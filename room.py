@@ -11,14 +11,15 @@ class Room:
     def __init__(self, room_data, bot_data, item_data, layout_index=0):
         self.wall  = room_data["wall"]
         self.floor = room_data["floor"]
-        self.grid  = self._build_grid(room_data["layouts"][layout_index])
+        layout     = room_data["layouts"][layout_index]
+        self.grid  = self._build_grid(layout["grid"])
         self.height = len(self.grid)
         self.width  = len(self.grid[0])
 
         # Spawn bots and items into random floor tiles
         occupied = set()
-        self.bots  = self._spawn(Bot,  bot_data,  room_data["num_bots"],  occupied)
-        self.items = self._spawn(Item, item_data, room_data["num_items"], occupied)
+        self.bots  = self._spawn(Bot,  bot_data,  layout["num_bots"],  occupied)
+        self.items = self._spawn(Item, item_data, layout["num_items"], occupied)
 
     ######################################
     # Build Grid From Layout
