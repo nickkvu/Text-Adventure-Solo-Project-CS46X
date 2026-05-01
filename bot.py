@@ -6,14 +6,13 @@ Passive for now. Will handle combat behavior in later stages
 import random
 from entity import Entity
 
-CHASE_RANGE = 3  # Manhattan distance at which bots switch from patrol to chase
-
 class Bot(Entity):
     def __init__(self, data, row, col):
         super().__init__(data["symbol"], row, col)
         self.hp = data["hp"]
         self.shoot_range = data["shoot_range"]
         self.damage = data["damage"]
+        self.chase_range = data["chase_range"]
         self.alive = True
 
     def take_damage(self, amount):
@@ -28,7 +27,7 @@ class Bot(Entity):
         dr = player.row - self.row
         dc = player.col - self.col
 
-        if abs(dr) + abs(dc) <= CHASE_RANGE:
+        if abs(dr) + abs(dc) <= self.chase_range:
             steps = self._chase_steps(dr, dc)
         else:
             steps = self._patrol_steps()
