@@ -68,3 +68,14 @@ All game values are configured in `data.json` — including room layout, player 
 - Item interaction
 - Title and help screens
 - Class hierarchy: `Entity` → `Player`, `Bot`, `Item`, `Room`
+
+
+
+## Sprint 2 -- Completed 
+- 2nd Room Layout
+- Room Transition Function
+- Momvement to Bots
+- Player-Bot Interactions
+- Screen Cards - Lossing/Winning
+- Updated HUD
+- Improved Graphics
