@@ -15,7 +15,8 @@ DELTAS = {
 class Player(Entity) :
     def __init__(self, data, row, col) :
         super().__init__(data["symbol"], row, col)
-        self.hp = data["hp"]
+        self.hp     = data["hp"]
+        self.max_hp = data["hp"]
         self.weapon = None
 
     def move(self, command, grid) :

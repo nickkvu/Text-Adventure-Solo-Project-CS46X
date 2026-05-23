@@ -75,12 +75,23 @@ def display(room, player, status="", room_label=""):
     bot_hp_display = ", ".join(
         str(b.hp) if b.alive else "DEAD" for b in room.bots
     )
-    print("\nMove: W A S D  |  Shoot: shoot [direction]  |  Quit: Q")
 
-    weapon_display = player.weapon.name if player.weapon else "None"
-    print(f"\nPlayer HP: {player.hp}  |  Bot HP: {bot_hp_display}  |  Weapon: {weapon_display}  |  Difficulty: {room.difficulty}")
+    # Health bar — 15 chars wide, proportional fill
+    BAR_WIDTH = 15
+    filled = round(player.hp / player.max_hp * BAR_WIDTH) if player.max_hp > 0 else 0
+    filled = max(0, min(BAR_WIDTH, filled))
+    health_bar = f"[{'█' * filled}{'░' * (BAR_WIDTH - filled)}]"
 
-    print(f"Position: ({player.row}, {player.col})")
+    weapon_name = player.weapon.name if player.weapon else "None"
+
+    print(f"\n  HP: {health_bar} {player.hp}/{player.max_hp}  |  Bot HP: {bot_hp_display}")
+    print(f"  Weapon: {weapon_name}  |  Difficulty: {room.difficulty}  |  Position: ({player.row}, {player.col})")
+    print(f"  Move: W A S D  |  Shoot: shoot [direction]  |  Quit: Q")
+
+    if player.weapon and player.weapon.art:
+        print()
+        for line in player.weapon.art:
+            print(f"  {line}")
 
     if status:
         print(f"\n{status}")
