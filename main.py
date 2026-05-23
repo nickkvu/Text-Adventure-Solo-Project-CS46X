@@ -62,9 +62,9 @@ def display(room, player, status="", room_label="", projectiles=None):
     for row in range(room.height):
         sprites = []
         for col in range(room.width):
-            # Check projectile overlay
+            # Check projectile overlay (skip if tile is a wall)
             proj_sym = next((sym for r, c, sym in projectiles if r == row and c == col), None) if projectiles else None
-            if proj_sym:
+            if proj_sym and room.grid[row][col] != room.wall:
                 sprites.append(GLYPH.get(proj_sym, _FALLBACK))
             # Check player
             elif row == player.row and col == player.col:
