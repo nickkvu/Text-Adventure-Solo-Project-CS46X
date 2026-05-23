@@ -79,3 +79,11 @@ All game values are configured in `data.json` — including room layout, player 
 - Screen Cards - Lossing/Winning
 - Updated HUD
 - Improved Graphics
+
+
+
+## Sprint 3 -- Completed 
+- New Weapon Added: Shotgun
+- 2 New Rooms Added (With Increasing Difficulty)
+- Updated HUD To Include: Weapon Icons, Health Bar
+- Updated Game Graphics To Include: Shooting Animation
