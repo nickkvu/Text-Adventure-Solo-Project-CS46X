@@ -148,7 +148,7 @@ def run_game():
     num_rooms = len(data["room"]["layouts"])
 
     # Build room — Room handles grid, bot spawns, item spawns
-    room = Room(data["room"], data["bot"], data["item"], current_room_index)
+    room = Room(data["room"], data["bot"], data["items"], current_room_index)
 
     # Spawn player at center, making sure it's a floor tile
     player_row = room.height // 2
@@ -202,7 +202,7 @@ def run_game():
                         input(data["ui"]["room_cleared_prompt"])
                         current_room_index += 1
                         room_label = f"Room {current_room_index + 1}/{num_rooms}"
-                        room = Room(data["room"], data["bot"], data["item"], current_room_index)
+                        room = Room(data["room"], data["bot"], data["items"], current_room_index)
                         player.row = room.height // 2
                         player.col = room.width  // 2
                         display(room, player, f"Entering Room {current_room_index + 1}...", room_label)

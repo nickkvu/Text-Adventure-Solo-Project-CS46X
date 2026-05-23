@@ -16,7 +16,8 @@
                     "####################"
                 ],
                 "num_bots": 1,
-                "num_items": 1
+                "num_items": 1,
+                "item_type": "blaster"
             },
             {
                 "grid": [
@@ -32,7 +33,8 @@
                     "####################"
                 ],
                 "num_bots": 2,
-                "num_items": 0
+                "num_items": 1,
+                "item_type": "shotgun"
             }
         ]
     },
@@ -50,11 +52,21 @@
         "chase_range": 3
     },
 
-    "item": {
-        "symbol": "I",
-        "name": "Blaster",
-        "shoot_range": 4,
-        "damage": 1
+    "items": {
+        "blaster": {
+            "symbol": "I",
+            "name": "Blaster",
+            "weapon_type": "blaster",
+            "shoot_range": 4,
+            "damage": 1
+        },
+        "shotgun": {
+            "symbol": "G",
+            "name": "Shotgun",
+            "weapon_type": "shotgun",
+            "shoot_range": 1,
+            "damage": 2
+        }
     },
 
     "directions": {
@@ -71,7 +83,8 @@
         "@": [" _O_ ", "/|@|\\", " |=| ", " /|\\ ", "/ | \\"],
         "E": [".\\-/.", "|O-O|", "|---|", "|   |", ".---."],
         "X": [".---.", "| x |", "|xXx|", "| x |", ".---."],
-        "I": ["  _  ", " [I] ", "=[*]=", " [I] ", "  -  "]
+        "I": ["  _  ", " [I] ", "=[*]=", " [I] ", "  -  "],
+        "G": ["  _  ", "/[G]\\", "=[*]=", "\\[G]/", "  _  "]
     },
 
     "screens": {
