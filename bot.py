@@ -71,3 +71,56 @@ class Bot(Entity):
                     player.hp -= self.damage
                     return f"A bot shot you! (-{self.damage} HP)"
         return ""
+
+
+class BossBot(Bot):
+    _DELTA_SYMS = {
+        (-1,  0): 'bullet_n',
+        ( 1,  0): 'bullet_s',
+        ( 0, -1): 'bullet_w',
+        ( 0,  1): 'bullet_e',
+    }
+
+    def take_damage(self, amount):
+        self.hp -= amount
+        if self.hp <= 0:
+            self.hp = 0
+            self.alive = False
+            return "*** BOSS DEFEATED! The arena falls silent... ***"
+        return f"BOSS HIT! Boss HP remaining: {self.hp}"
+
+    def shoot(self, player, room, on_step=None):
+        DELTAS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        positions = {d: [self.row + d[0], self.col + d[1]] for d in DELTAS}
+        stopped = {d: False for d in DELTAS}
+        hit = False
+
+        for _ in range(self.shoot_range):
+            active = [
+                (positions[d][0], positions[d][1], self._DELTA_SYMS[d])
+                for d in DELTAS if not stopped[d]
+            ]
+            if on_step and active:
+                on_step(active)
+
+            for d in DELTAS:
+                if stopped[d]:
+                    continue
+                r, c = positions[d]
+                if room.grid[r][c] == room.wall:
+                    stopped[d] = True
+                    continue
+                if r == player.row and c == player.col:
+                    player.hp -= self.damage
+                    hit = True
+                    stopped[d] = True
+                    continue
+                positions[d][0] += d[0]
+                positions[d][1] += d[1]
+
+            if all(stopped.values()):
+                break
+
+        if hit:
+            return f"*** BOSS fires a CROSS BLAST! You were hit! (-{self.damage} HP) ***"
+        return "*** BOSS fires a CROSS BLAST! ***"

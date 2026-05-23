@@ -3,12 +3,12 @@ Room class - owns the grid, bots, and items for a single room
 """
 
 import random
-from bot import Bot
+from bot import Bot, BossBot
 from item import Item
 
 
 class Room:
-    def __init__(self, room_data, bot_data, items_data, layout_index=0):
+    def __init__(self, room_data, bot_data, boss_bot_data, items_data, layout_index=0):
         self.wall       = room_data["wall"]
         self.floor      = room_data["floor"]
         layout          = room_data["layouts"][layout_index]
@@ -19,7 +19,10 @@ class Room:
 
         # Spawn bots and items into random floor tiles
         occupied = set()
-        self.bots  = self._spawn(Bot, bot_data, layout["num_bots"], occupied)
+        if layout.get("is_boss", False):
+            self.bots = self._spawn(BossBot, boss_bot_data, 1, occupied)
+        else:
+            self.bots = self._spawn(Bot, bot_data, layout["num_bots"], occupied)
         if layout["num_items"] > 0:
             item_data  = items_data[layout["item_type"]]
             self.items = self._spawn(Item, item_data, layout["num_items"], occupied)

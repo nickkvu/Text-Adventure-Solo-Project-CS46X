@@ -115,7 +115,7 @@ def make_real_room(grid_lines, num_bots=0, num_items=0,
             "difficulty": difficulty,
         }],
     }
-    return Room(room_data, BOT_DATA, ITEMS_DATA, 0)
+    return Room(room_data, BOT_DATA, BOT_DATA, ITEMS_DATA, 0)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -875,7 +875,7 @@ class TestMultiRoomProgression(unittest.TestCase):
             cls.data = json.load(f)
 
     def _room(self, index):
-        return Room(self.data["room"], self.data["bot"], self.data["items"], index)
+        return Room(self.data["room"], self.data["bot"], self.data["boss_bot"], self.data["items"], index)
 
     def test_room_not_cleared_at_start(self):
         self.assertFalse(self._room(0).is_cleared())

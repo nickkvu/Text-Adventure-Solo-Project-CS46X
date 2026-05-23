@@ -10,6 +10,7 @@ import time
 
 from player import Player
 from room import Room
+from bot import BossBot
 from parser import parse
 
 ######################################
@@ -157,16 +158,22 @@ def game_over_screen(screen_data):
 ######################################
 # Bot Turn: Each Bot Shoots OR Moves
 ######################################
-def bot_turn(room, player):
+def bot_turn(room, player, boss_on_step=None):
     messages = []
     for bot in room.bots:
         if not bot.alive:
             continue
-        msg = bot.shoot(player, room)
-        if msg:
+        if isinstance(bot, BossBot):
+            # Boss always shoots AND moves every turn
+            msg = bot.shoot(player, room, boss_on_step)
             messages.append(msg)
-        else:
             bot.move(room, player)
+        else:
+            msg = bot.shoot(player, room)
+            if msg:
+                messages.append(msg)
+            else:
+                bot.move(room, player)
     return "\n".join(messages)
 
 ######################################
@@ -192,13 +199,17 @@ def run_game():
     num_rooms = len(data["room"]["layouts"])
 
     # Build room — Room handles grid, bot spawns, item spawns
-    room = Room(data["room"], data["bot"], data["items"], current_room_index)
+    room = Room(data["room"], data["bot"], data["boss_bot"], data["items"], current_room_index)
 
     player_row, player_col = bottom_spawn(room)
     player = Player(data["player"], player_row, player_col)
 
     room_label = f"Room {current_room_index + 1}/{num_rooms}"
     display(room, player, room_label=room_label)
+
+    def boss_on_step(projs):
+        display(room, player, room_label=room_label, projectiles=projs)
+        time.sleep(0.07)
 
     while True:
         command = input("\n> ").strip().lower()
@@ -208,7 +219,7 @@ def run_game():
         if verb in ('w', 'a', 's', 'd') or (verb in ('move', 'go') and noun in DIRECTION_MAP):
             direction = DIRECTION_MAP.get(noun or verb)
             status = player.move(direction, room.grid)
-            bot_msg = bot_turn(room, player)
+            bot_msg = bot_turn(room, player, boss_on_step)
             display(room, player, "\n".join(filter(None, [status, bot_msg])), room_label)
             if player.hp <= 0:
                 game_over_screen(data["screens"]["game_over"])
@@ -223,7 +234,7 @@ def run_game():
                     player.weapon = item
                     picked = True
                     break
-            bot_msg = bot_turn(room, player)
+            bot_msg = bot_turn(room, player, boss_on_step)
             pickup_msg = f"You picked up the {item.name}!" if picked else "There's nothing here to pick up."
             display(room, player, "\n".join(filter(None, [pickup_msg, bot_msg])), room_label)
             if player.hp <= 0:
@@ -251,7 +262,7 @@ def run_game():
                         input(data["ui"]["room_cleared_prompt"])
                         current_room_index += 1
                         room_label = f"Room {current_room_index + 1}/{num_rooms}"
-                        room = Room(data["room"], data["bot"], data["items"], current_room_index)
+                        room = Room(data["room"], data["bot"], data["boss_bot"], data["items"], current_room_index)
                         player.row, player.col = bottom_spawn(room)
                         display(room, player, f"Entering Room {current_room_index + 1}...", room_label)
                     else:
@@ -259,7 +270,7 @@ def run_game():
                         ending_screen(data["screens"]["ending"])
                         break
                 else:
-                    bot_msg = bot_turn(room, player)
+                    bot_msg = bot_turn(room, player, boss_on_step)
                     display(room, player, "\n".join(filter(None, [status, bot_msg])), room_label)
                     if player.hp <= 0:
                         game_over_screen(data["screens"]["game_over"])
