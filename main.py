@@ -78,7 +78,7 @@ def display(room, player, status="", room_label=""):
     print("\nMove: W A S D  |  Shoot: shoot [direction]  |  Quit: Q")
 
     weapon_display = player.weapon.name if player.weapon else "None"
-    print(f"\nPlayer HP: {player.hp}  |  Bot HP: {bot_hp_display}  |  Weapon: {weapon_display}")
+    print(f"\nPlayer HP: {player.hp}  |  Bot HP: {bot_hp_display}  |  Weapon: {weapon_display}  |  Difficulty: {room.difficulty}")
 
     print(f"Position: ({player.row}, {player.col})")
 
@@ -136,6 +136,16 @@ def bot_turn(room, player):
     return "\n".join(messages)
 
 ######################################
+# Find Bottommost Floor Tile at Center Column
+######################################
+def bottom_spawn(room):
+    center_col = room.width // 2
+    for row in range(room.height - 2, 0, -1):
+        if room.grid[row][center_col] == room.floor:
+            return row, center_col
+    return room.height // 2, center_col  # fallback (should never trigger)
+
+######################################
 # Run The Game
 ######################################
 def run_game():
@@ -150,9 +160,7 @@ def run_game():
     # Build room — Room handles grid, bot spawns, item spawns
     room = Room(data["room"], data["bot"], data["items"], current_room_index)
 
-    # Spawn player at center, making sure it's a floor tile
-    player_row = room.height // 2
-    player_col = room.width  // 2
+    player_row, player_col = bottom_spawn(room)
     player = Player(data["player"], player_row, player_col)
 
     room_label = f"Room {current_room_index + 1}/{num_rooms}"
@@ -203,8 +211,7 @@ def run_game():
                         current_room_index += 1
                         room_label = f"Room {current_room_index + 1}/{num_rooms}"
                         room = Room(data["room"], data["bot"], data["items"], current_room_index)
-                        player.row = room.height // 2
-                        player.col = room.width  // 2
+                        player.row, player.col = bottom_spawn(room)
                         display(room, player, f"Entering Room {current_room_index + 1}...", room_label)
                     else:
                         win_screen(data["screens"]["win"])
