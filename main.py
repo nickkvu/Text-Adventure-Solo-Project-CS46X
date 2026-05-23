@@ -133,6 +133,17 @@ def win_screen(screen_data):
     input(screen_data["prompt"])
 
 ######################################
+# Ending / Credits Screen
+######################################
+def ending_screen(screen_data):
+    subprocess.run("cls" if os.name == "nt" else "clear", shell=True)
+    print("\n" * 2)
+    for line in screen_data["lines"]:
+        print(line)
+    print()
+    input(screen_data["prompt"])
+
+######################################
 # Game Over Screen
 ######################################
 def game_over_screen(screen_data):
@@ -245,6 +256,7 @@ def run_game():
                         display(room, player, f"Entering Room {current_room_index + 1}...", room_label)
                     else:
                         win_screen(data["screens"]["win"])
+                        ending_screen(data["screens"]["ending"])
                         break
                 else:
                     bot_msg = bot_turn(room, player)
