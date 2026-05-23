@@ -96,7 +96,7 @@
 
     "player": {
         "symbol": "@",
-        "hp": 15
+        "hp": 25
     },
 
     "bot": {
