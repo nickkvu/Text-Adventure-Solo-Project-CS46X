@@ -6,6 +6,7 @@ Main Game Application (Entry Point)
 import os
 import subprocess
 import json
+import time
 
 from player import Player
 from room import Room
@@ -15,6 +16,13 @@ from parser import parse
 # Display Glyph Map (data symbol → terminal graphic)
 ######################################
 GLYPH = {}  # populated from data["glyphs"] in run_game()
+
+BULLET_GLYPHS = {
+    'w': 'bullet_n',
+    's': 'bullet_s',
+    'a': 'bullet_w',
+    'd': 'bullet_e',
+}
 
 ######################################
 # Load Game Data
@@ -43,7 +51,7 @@ def title_screen():
 ######################################
 # Display Grid + HUD
 ######################################
-def display(room, player, status="", room_label=""):
+def display(room, player, status="", room_label="", projectiles=None):
     subprocess.run("cls" if os.name == "nt" else "clear", shell=True)
     label_suffix = f"  [{room_label}]" if room_label else ""
     print(f"=== TEXT ADVENTURE: BRAWL ==={label_suffix}")
@@ -53,8 +61,12 @@ def display(room, player, status="", room_label=""):
     for row in range(room.height):
         sprites = []
         for col in range(room.width):
+            # Check projectile overlay
+            proj_sym = next((sym for r, c, sym in projectiles if r == row and c == col), None) if projectiles else None
+            if proj_sym:
+                sprites.append(GLYPH.get(proj_sym, _FALLBACK))
             # Check player
-            if row == player.row and col == player.col:
+            elif row == player.row and col == player.col:
                 sprites.append(GLYPH.get(player.symbol, _FALLBACK))
             # Check bots
             elif any(b.alive and b.row == row and b.col == col for b in room.bots):
@@ -213,7 +225,14 @@ def run_game():
                 display(room, player, "Shoot which direction? Try: shoot north/south/east/west", room_label)
             else:
                 direction = DIRECTION_MAP[noun]
-                status = player.shoot(direction, room)
+                bullet_sym = BULLET_GLYPHS.get(direction, 'bullet_e')
+
+                def on_step(positions):
+                    projs = [(r, c, bullet_sym) for r, c in positions]
+                    display(room, player, room_label=room_label, projectiles=projs)
+                    time.sleep(0.07)
+
+                status = player.shoot(direction, room, on_step)
 
                 if room.is_cleared():
                     display(room, player, status, room_label)

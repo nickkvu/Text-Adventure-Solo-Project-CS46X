@@ -37,7 +37,7 @@ class Player(Entity) :
         else:
             return "You ran into a wall!"
 
-    def shoot(self, direction, room):
+    def shoot(self, direction, room, on_step=None):
         if self.weapon is None:
             return "You don't have a weapon! Pick one up first!"
 
@@ -45,16 +45,18 @@ class Player(Entity) :
             return "Cannot Fire!"
 
         if self.weapon.weapon_type == 'shotgun':
-            return self._shoot_shotgun(direction, room)
+            return self._shoot_shotgun(direction, room, on_step)
         else:
-            return self._shoot_single(direction, room)
+            return self._shoot_single(direction, room, on_step)
 
-    def _shoot_single(self, direction, room):
+    def _shoot_single(self, direction, room, on_step=None):
         d_row, d_col = DELTAS[direction]
         curr_row = self.row + d_row
         curr_col = self.col + d_col
 
         for _ in range(self.weapon.shoot_range):
+            if on_step:
+                on_step([(curr_row, curr_col)])
             if room.grid[curr_row][curr_col] == room.wall:
                 return "Your shot hit a wall!"
 
@@ -67,7 +69,7 @@ class Player(Entity) :
 
         return "Your shot didn't reach anything."
 
-    def _shoot_shotgun(self, direction, room):
+    def _shoot_shotgun(self, direction, room, on_step=None):
         d_row, d_col = DELTAS[direction]
 
         # Three pellets: center ray + two spread rays perpendicular to travel axis
@@ -79,19 +81,34 @@ class Player(Entity) :
         messages = []
         hit_bots = set()
 
-        for (pr, pc) in pellet_deltas:
-            curr_row = self.row + pr
-            curr_col = self.col + pc
-            for _ in range(self.weapon.shoot_range):
-                if room.grid[curr_row][curr_col] == room.wall:
-                    break
+        # Track current position for each pellet; None means stopped
+        positions = [[self.row + pr, self.col + pc] for pr, pc in pellet_deltas]
+        stopped = [False] * len(pellet_deltas)
+
+        for _ in range(self.weapon.shoot_range):
+            active = [(positions[i][0], positions[i][1]) for i in range(len(pellet_deltas)) if not stopped[i]]
+            if on_step and active:
+                on_step(active)
+
+            for i, (pr, pc) in enumerate(pellet_deltas):
+                if stopped[i]:
+                    continue
+                r, c = positions[i]
+                if room.grid[r][c] == room.wall:
+                    stopped[i] = True
+                    continue
                 for bot in room.bots:
-                    if bot.alive and bot.row == curr_row and bot.col == curr_col and id(bot) not in hit_bots:
+                    if bot.alive and bot.row == r and bot.col == c and id(bot) not in hit_bots:
                         hit_bots.add(id(bot))
                         messages.append(bot.take_damage(self.weapon.damage))
+                        stopped[i] = True
                         break
-                curr_row += pr
-                curr_col += pc
+                if not stopped[i]:
+                    positions[i][0] += pr
+                    positions[i][1] += pc
+
+            if all(stopped):
+                break
 
         if messages:
             return "\n".join(messages)
